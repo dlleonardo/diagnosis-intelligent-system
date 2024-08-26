@@ -59,3 +59,5 @@ slightlyHigherRiskPatient(AGE, EXISTING_HEALTH_CONDITIONS, SEX) :-
 diagnose(SYMPTOM, AGE, EXISTING_HEALTH_CONDITIONS, SEX) :- 
     (commonSymptom(SYMPTOM); rareSymptom(SYMPTOM); seriousSymptom(SYMPTOM)),
     !.
+
+    
