@@ -1,4 +1,4 @@
-Scenario
+**Scenario**
 
 Symptoms of the virus varied in severity from being asymptomatic to having more than one symptom. 
 The most common symptoms were fever, persistent dry cough, and tiredness. 
