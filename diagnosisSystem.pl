@@ -46,11 +46,10 @@ highRisk(elderly). /* age above 70 years old */
 highRisk(preExistingHealthConditions).
 slightlyHigherRisk(male).
 
-/* the patient has been in contact with someone infected in the past few days*/
-
+/* the patient has been in contact with someone infected in the past few days */
+hasMetSomeoneInfected(yes).
 
 /* rules of the system */
-
 /* this rule checks whether a patient is at high risk or not */
 highRiskPatient(AGE, EXISTING_HEALTH_CONDITIONS) :- 
     (highRisk(AGE); highRisk(EXISTING_HEALTH_CONDITIONS)),
@@ -62,7 +61,7 @@ slightlyHigherRiskPatient(AGE, EXISTING_HEALTH_CONDITIONS, SEX) :-
     slightlyHigherRisk(SEX).
 
 /* diagnosis rules */
-hasMildSymptoms(SYMPTOMS) :-
+hasCommonSymptoms(SYMPTOMS) :-
     commonSymptoms(COMMON),
     member(S, SYMPTOMS),
     member(S, COMMON).
@@ -77,6 +76,9 @@ hasSeriousSymptoms(SYMPTOMS) :-
     member(S, SYMPTOMS),
     member(S, SERIOUS).
 
-diagnose(SYMPTOM, AGE, EXISTING_HEALTH_CONDITIONS, SEX) :- 
-    (commonSymptom(SYMPTOM); rareSymptom(SYMPTOM); seriousSymptom(SYMPTOM)),
+diagnose(SYMPTOMS, AGE, EXISTING_HEALTH_CONDITIONS, SEX, CONTACT) :- 
+    P_I is 0,
+    (hasCommonSymptoms(SYMPTOMS); hasRareSymptoms(SYMPTOMS); hasSeriousSymptoms(SYMPTOMS)),
+    hasMetSomeoneInfected(CONTACT) -> P_I_1 is P_I + 0.4,
+    write('You are infected: '), write(P_I_1),
     !.
