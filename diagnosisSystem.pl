@@ -13,13 +13,13 @@ Males in these groups also appeared to be at a slightly higher risk than females
 and recovered without hospitalization.
 */
 /* knowledge base of the system */
-/* common symptoms */
+/* list of common symptoms */
 commonSymptoms([fever, dryCough, tiredness]).
 
-/* rare/less common symptoms */
+/* list of rare/less common symptoms */
 rareSymptoms([achesAndPains, soreThroat, diarrhoea, conjunctivitis, headache, anosmia, runningNose]).
 
-/* serious symptoms */
+/* list of serious symptoms */
 seriousSymptoms([difficultyBreathing, shortnessOfBreath, feelingOfChestPressure, chestPain, lossOfSpeech, lossOfMovement]).
 
 /* patient conditions/risks */
@@ -35,6 +35,10 @@ metSomeoneInfected(yes).
 highRiskPatient(AGE, EXISTING_HEALTH_CONDITIONS) :- 
     (highRisk(AGE); highRisk(EXISTING_HEALTH_CONDITIONS)),
     !.
+
+slightlyHigherRiskPatient(AGE, EXISTING_HEALTH_CONDITIONS, SEX) :-
+    highRiskPatient(AGE, EXISTING_HEALTH_CONDITIONS),
+    slightlyHigherRisk(SEX).
 
 /* diagnosis rules */
 hasCommonSymptoms(SYMPTOMS) :-
@@ -52,12 +56,24 @@ hasSeriousSymptoms(SYMPTOMS) :-
     member(S, SYMPTOMS),
     member(S, SERIOUS).
 
-
 diagnose(SYMPTOMS, AGE, EXISTING_HEALTH_CONDITIONS, SEX, CONTACT) :- 
     P_I is 0,
-    ((hasCommonSymptoms(SYMPTOMS); hasRareSymptoms(SYMPTOMS); hasSeriousSymptoms(SYMPTOMS)) -> P_S is P_I + 0.5; P_S is P_I), 
-    (highRiskPatient(AGE, EXISTING_HEALTH_CONDITIONS) -> P_R is P_S + 0.08; P_R is P_S),
-    ((P_R > 0, slightlyHigherRisk(SEX)) -> P_S_R is P_R + 0.02; P_S_R is P_R),
+
+    /* if the patient has at least one common or serious symptom, increase P(I) by 50% */
+    ((hasCommonSymptoms(SYMPTOMS); hasSeriousSymptoms(SYMPTOMS)) -> P_S is P_I + 0.5; P_S is P_I),
+    
+    /* if the patient has at least one rare symptom and no common or rare symptom, increase P(I) by 20% */
+    ((P_S == 0, hasRareSymptoms(SYMPTOMS)) -> P_S_2 is P_S + 0.2; P_S_2 is P_S), 
+
+    /* if the patient is a high risk patient (elderly or with pre-existing health conditions), increase P(I) by 8% */    
+    (highRiskPatient(AGE, EXISTING_HEALTH_CONDITIONS) -> P_R is P_S_2 + 0.08; P_R is P_S_2),
+    
+    /* if the patient belongs to one of the two previous groups and is a male, increase P(I) by 2% */
+    (slightlyHigherRiskPatient(AGE, EXISTING_HEALTH_CONDITIONS, SEX) -> P_S_R is P_R + 0.02; P_S_R is P_R),
+    
+    /* if the patient has met someone infected in the past few days, increase P(I) by 40% */
     (metSomeoneInfected(CONTACT) -> P_C is P_S_R + 0.4; P_C is P_S_R),
-    (P_C > 0.49 -> write('You are infected: '), write(P_C); write('You are not infected.')),
+    
+    /* print the diagnose output based on P(I) value */
+    (P_C >= 0.5 -> write('You are infected: '), write(P_C); write('You are not infected.')),
     !.
