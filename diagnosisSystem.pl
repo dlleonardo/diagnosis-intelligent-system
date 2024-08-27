@@ -31,15 +31,10 @@ slightlyHigherRisk(male).
 metSomeoneInfected(yes).
 
 /* rules of the system */
-/* this rule checks whether a patient is at high risk or not */
+/* checks whether a patient is a high risk patient or not */
 highRiskPatient(AGE, EXISTING_HEALTH_CONDITIONS) :- 
     (highRisk(AGE); highRisk(EXISTING_HEALTH_CONDITIONS)),
     !.
-
-/* this rule checks whether a patient is slightly at a higher risk or not */
-slightlyHigherRiskPatient(AGE, EXISTING_HEALTH_CONDITIONS, SEX) :-
-    highRiskPatient(AGE, EXISTING_HEALTH_CONDITIONS),
-    slightlyHigherRisk(SEX).
 
 /* diagnosis rules */
 hasCommonSymptoms(SYMPTOMS) :-
@@ -61,6 +56,8 @@ hasSeriousSymptoms(SYMPTOMS) :-
 diagnose(SYMPTOMS, AGE, EXISTING_HEALTH_CONDITIONS, SEX, CONTACT) :- 
     P_I is 0,
     ((hasCommonSymptoms(SYMPTOMS); hasRareSymptoms(SYMPTOMS); hasSeriousSymptoms(SYMPTOMS)) -> P_S is P_I + 0.5; P_S is P_I), 
-    (metSomeoneInfected(CONTACT) -> P_C is P_S + 0.4; P_C is P_S),
+    (highRiskPatient(AGE, EXISTING_HEALTH_CONDITIONS) -> P_R is P_S + 0.08; P_R is P_S),
+    ((P_R > 0, slightlyHigherRisk(SEX)) -> P_S_R is P_R + 0.02; P_S_R is P_R),
+    (metSomeoneInfected(CONTACT) -> P_C is P_S_R + 0.4; P_C is P_S_R),
     (P_C > 0.49 -> write('You are infected: '), write(P_C); write('You are not infected.')),
     !.
