@@ -14,31 +14,12 @@ and recovered without hospitalization.
 */
 /* knowledge base of the system */
 /* common symptoms */
-commonSymptom(fever).
-commonSymptom(dryCough).
-commonSymptom(tiredness).
-
 commonSymptoms([fever, dryCough, tiredness]).
 
 /* rare/less common symptoms */
-rareSymptom(achesAndPains).
-rareSymptom(soreThroat).
-rareSymptom(diarrhoea).
-rareSymptom(conjunctivitis).
-rareSymptom(headache).
-rareSymptom(anosmia).
-rareSymptom(runningNose).
-
 rareSymptoms([achesAndPains, soreThroat, diarrhoea, conjunctivitis, headache, anosmia, runningNose]).
 
 /* serious symptoms */
-seriousSymptom(difficultyBreathing).
-seriousSymptom(shortnessOfBreath).
-seriousSymptom(feelingOfChestPressure).
-seriousSymptom(chestPain).
-seriousSymptom(lossOfSpeech).
-seriousSymptom(lossOfMovement).
-
 seriousSymptoms([difficultyBreathing, shortnessOfBreath, feelingOfChestPressure, chestPain, lossOfSpeech, lossOfMovement]).
 
 /* patient conditions/risks */
@@ -47,7 +28,7 @@ highRisk(preExistingHealthConditions).
 slightlyHigherRisk(male).
 
 /* the patient has been in contact with someone infected in the past few days */
-hasMetSomeoneInfected(yes).
+metSomeoneInfected(yes).
 
 /* rules of the system */
 /* this rule checks whether a patient is at high risk or not */
@@ -76,9 +57,10 @@ hasSeriousSymptoms(SYMPTOMS) :-
     member(S, SYMPTOMS),
     member(S, SERIOUS).
 
+
 diagnose(SYMPTOMS, AGE, EXISTING_HEALTH_CONDITIONS, SEX, CONTACT) :- 
     P_I is 0,
-    (hasCommonSymptoms(SYMPTOMS); hasRareSymptoms(SYMPTOMS); hasSeriousSymptoms(SYMPTOMS)),
-    hasMetSomeoneInfected(CONTACT) -> P_I_1 is P_I + 0.4,
-    write('You are infected: '), write(P_I_1),
+    ((hasCommonSymptoms(SYMPTOMS); hasRareSymptoms(SYMPTOMS); hasSeriousSymptoms(SYMPTOMS)) -> P_S is P_I + 0.5; P_S is P_I), 
+    (metSomeoneInfected(CONTACT) -> P_C is P_S + 0.4; P_C is P_S),
+    (P_C > 0.49 -> write('You are infected: '), write(P_C); write('You are not infected.')),
     !.
