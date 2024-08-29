@@ -82,5 +82,8 @@ diagnose(SYMPTOMS, AGE, EXISTING_HEALTH_CONDITIONS, SEX, CONTACT) :-
     (P_I is P_S + P_HR + P_C),
 
     /* print the diagnose output based on P(I) value */
-    (P_I >= 0.5 -> write('You are infected: '), write(P_I); write('You are not infected.')),
+    ((P_I >= 0.0, P_I < 0.4) -> write('You are not infected: ');
+    (P_I >= 0.4, P_I < 0.6) -> write('You are probably not infected, but you should take care: ');
+    (P_I >= 0.6 -> write('You are infected: '))),
+    write(P_I),
     !.
