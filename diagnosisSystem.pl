@@ -30,10 +30,10 @@ metSomeoneInfected(yes).
 
 /* rules of the system */
 /* artithmetic and lists 5.3 */
-len([],0).
-len([_|T],N) :- 
-    len(T,X), 
-    N is X+1.
+len([], 0).
+len([_|T], N) :- 
+    len(T, X), 
+    N is X + 1.
 
 /* checks whether a patient is a high risk patient or not */
 highRiskPatient(AGE, EXISTING_HEALTH_CONDITIONS) :- 
@@ -62,23 +62,25 @@ hasSeriousSymptoms(SYMPTOMS) :-
     member(S, SERIOUS).
 
 diagnose(SYMPTOMS, AGE, EXISTING_HEALTH_CONDITIONS, SEX, CONTACT) :- 
-    P_I is 0,
+    P_0 is 0,
 
     /* if the patient has at least one common or serious symptom, increase P(I) by 50% */
-    ((hasCommonSymptoms(SYMPTOMS); hasSeriousSymptoms(SYMPTOMS)) -> P_S is P_I + 0.5; P_S is P_I),
+    ((hasCommonSymptoms(SYMPTOMS); hasSeriousSymptoms(SYMPTOMS)) -> P_CS_S is 0.5; P_CS_S is P_0),
     
     /* if the patient has at least one rare symptom and no common or serious symptom, increase P(I) by 20% */
-    ((P_S == 0, hasRareSymptoms(SYMPTOMS)) -> P_S_2 is P_S + 0.2; P_S_2 is P_S), 
+    ((P_CS_S =:= 0, hasRareSymptoms(SYMPTOMS)) -> P_S is 0.2; P_S is P_CS_S), 
 
     /* if the patient is a high risk patient (elderly or with pre-existing health conditions), increase P(I) by 8% */    
-    (highRiskPatient(AGE, EXISTING_HEALTH_CONDITIONS) -> P_R is P_S_2 + 0.08; P_R is P_S_2),
+    (highRiskPatient(AGE, EXISTING_HEALTH_CONDITIONS) -> P_R is 0.08; P_R is P_0),
     
     /* if the patient belongs to one of the two previous groups and is a male, increase P(I) by 2% */
-    (slightlyHigherRiskPatient(AGE, EXISTING_HEALTH_CONDITIONS, SEX) -> P_S_R is P_R + 0.02; P_S_R is P_R),
+    (slightlyHigherRiskPatient(AGE, EXISTING_HEALTH_CONDITIONS, SEX) -> P_HR is P_R + 0.02; P_HR is P_R),
     
     /* if the patient has met someone infected in the past few days, increase P(I) by 40% */
-    (metSomeoneInfected(CONTACT) -> P_C is P_S_R + 0.4; P_C is P_S_R),
+    (metSomeoneInfected(CONTACT) -> P_C is 0.4; P_C is P_0),
     
+    (P_I is P_S + P_HR + P_C),
+
     /* print the diagnose output based on P(I) value */
-    (P_C >= 0.5 -> write('You are infected: '), write(P_C); write('You are not infected.')),
+    (P_I >= 0.5 -> write('You are infected: '), write(P_I); write('You are not infected.')),
     !.
