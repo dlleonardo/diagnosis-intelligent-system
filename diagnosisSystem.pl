@@ -23,18 +23,23 @@ rareSymptoms([achesAndPains, soreThroat, diarrhoea, conjunctivitis, headache, an
 seriousSymptoms([difficultyBreathing, shortnessOfBreath, feelingOfChestPressure, chestPain, lossOfSpeech, lossOfMovement]).
 
 /* patient conditions/risks */
-highRisk(elderly). /* age above 70 years old */
-highRisk(preExistingHealthConditions).
 slightlyHigherRisk(male).
 
 /* the patient has been in contact with someone infected in the past few days */
 metSomeoneInfected(yes).
 
 /* rules of the system */
+/* artithmetic and lists 5.3 */
+len([],0).
+len([_|T],N) :- 
+    len(T,X), 
+    N is X+1.
+
 /* checks whether a patient is a high risk patient or not */
 highRiskPatient(AGE, EXISTING_HEALTH_CONDITIONS) :- 
-    (highRisk(AGE); highRisk(EXISTING_HEALTH_CONDITIONS)),
-    !.
+    AGE > 70; 
+    len(EXISTING_HEALTH_CONDITIONS, N),
+    N > 0.
 
 slightlyHigherRiskPatient(AGE, EXISTING_HEALTH_CONDITIONS, SEX) :-
     highRiskPatient(AGE, EXISTING_HEALTH_CONDITIONS),
@@ -62,7 +67,7 @@ diagnose(SYMPTOMS, AGE, EXISTING_HEALTH_CONDITIONS, SEX, CONTACT) :-
     /* if the patient has at least one common or serious symptom, increase P(I) by 50% */
     ((hasCommonSymptoms(SYMPTOMS); hasSeriousSymptoms(SYMPTOMS)) -> P_S is P_I + 0.5; P_S is P_I),
     
-    /* if the patient has at least one rare symptom and no common or rare symptom, increase P(I) by 20% */
+    /* if the patient has at least one rare symptom and no common or serious symptom, increase P(I) by 20% */
     ((P_S == 0, hasRareSymptoms(SYMPTOMS)) -> P_S_2 is P_S + 0.2; P_S_2 is P_S), 
 
     /* if the patient is a high risk patient (elderly or with pre-existing health conditions), increase P(I) by 8% */    
