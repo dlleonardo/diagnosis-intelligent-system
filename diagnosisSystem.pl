@@ -32,6 +32,7 @@ slightlyHigherRiskPatient(AGE, EXISTING_HEALTH_CONDITIONS, SEX) :-
     slightlyHigherRisk(SEX).
 
 /* diagnosis rules */
+/* these rules check if the symptom(s) given as input is(are) part of the knowledge base of the system */
 hasCommonSymptoms(SYMPTOMS) :-
     commonSymptoms(COMMON),
     member(S, SYMPTOMS),
@@ -78,6 +79,7 @@ diagnose(SYMPTOMS, AGE, EXISTING_HEALTH_CONDITIONS, SEX, CONTACT) :-
     /* print other messages based on patient information */
     /* if the patient has symptoms and has been identified as a high-risk patient, then print the message */
     ((P_HR > 0.0, P_S > 0.0) -> write('\nYou are a high-risk patient, call immediately the doctor.');
+
     /* if the patient has no symptoms but has been in contact with someone infected, then print the message */
     ((P_S =:= 0.0, P_C > 0.0) -> write('\nYou have no symptoms yet.'))),
     !.
