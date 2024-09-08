@@ -1,17 +1,3 @@
-/*
-Symptoms of the virus varied in severity from being asymptomatic to having more than one symptom. 
-The most common symptoms were fever, persistent dry cough, and tiredness. 
-Less common symptoms were aches and pains, sore throat, diarrhoea, conjunctivitis, headache, 
-anosmia/hyposmia (total/partial loss of sense of smell and taste), and running nose. 
-Serious symptoms included difficulty breathing or shortness of breath, chest pain or feeling of chest pressure, loss of speech or movement. 
-People with serious symptoms needed to seek immediate medical attention, proceeding with an initial assessment call (no contacts) 
-to the doctor or health facility. 
-People with mild symptoms had to manage their symptoms at home, without a doctor assessment. 
-Elderly people (above 70 years old) and those with pre-existent health conditions (e.g. hypertension, diabetes, cardiovascular disease, 
-chronic respiratory disease and cancer) were considered more at risk of developing severe symptoms. 
-Males in these groups also appeared to be at a slightly higher risk than females. Most infected people developed mild to moderate illness 
-and recovered without hospitalization.
-*/
 /* knowledge base of the system */
 /* list of common symptoms */
 commonSymptoms([fever, dryCough, tiredness]).
@@ -29,7 +15,7 @@ slightlyHigherRisk(male).
 metSomeoneInfected(yes).
 
 /* rules of the system */
-/* artithmetic and lists 5.3 */
+/* Learn Prolog Now! - Artithmetic and Lists 5.3 */
 len([], 0).
 len([_|T], N) :- 
     len(T, X), 
@@ -61,6 +47,7 @@ hasSeriousSymptoms(SYMPTOMS) :-
     member(S, SYMPTOMS),
     member(S, SERIOUS).
 
+/* main rule of the system */
 diagnose(SYMPTOMS, AGE, EXISTING_HEALTH_CONDITIONS, SEX, CONTACT) :- 
     P_0 is 0,
 
@@ -79,11 +66,18 @@ diagnose(SYMPTOMS, AGE, EXISTING_HEALTH_CONDITIONS, SEX, CONTACT) :-
     /* if the patient has met someone infected in the past few days, increase P(I) by 40% */
     (metSomeoneInfected(CONTACT) -> P_C is 0.4; P_C is P_0),
     
+    /* calculates the probability of being infected */
     (P_I is P_S + P_HR + P_C),
 
     /* print the diagnose output based on P(I) value */
     ((P_I >= 0.0, P_I < 0.4) -> write('You are not infected: ');
-    (P_I >= 0.4, P_I < 0.6) -> write('You are probably not infected, but you should take care: ');
+    (P_I >= 0.4, P_I < 0.6) -> write('There is a probability that you are infected, you should take care: ');
     (P_I >= 0.6 -> write('You are infected: '))),
     write(P_I),
+
+    /* print other messages based on patient information */
+    /* if the patient has symptoms and has been identified as a high-risk patient, then print the message */
+    ((P_HR > 0.0, P_S > 0.0) -> write('\nYou are a high-risk patient, call immediately the doctor.');
+    /* if the patient has no symptoms but has been in contact with someone infected, then print the message */
+    ((P_S =:= 0.0, P_C > 0.0) -> write('\nYou have no symptoms yet.'))),
     !.
