@@ -72,7 +72,7 @@ diagnose(SYMPTOMS, AGE, EXISTING_HEALTH_CONDITIONS, SEX, CONTACT) :-
 
     /* print the diagnose output based on P(I) value */
     ((P_I >= 0.0, P_I < 0.4) -> write('You are not infected: ');
-    (P_I >= 0.4, P_I < 0.6) -> write('There is a probability that you are infected, you should take care: ');
+    (P_I >= 0.4, P_I < 0.6) -> write('You might be infected: ');
     (P_I >= 0.6 -> write('You are infected: '))),
     write(P_I),
 
