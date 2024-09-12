@@ -67,7 +67,7 @@ diagnose(SYMPTOMS, AGE, EXISTING_HEALTH_CONDITIONS, SEX, CONTACT) :-
     /* if the patient has met someone infected in the past few days, increase P(I) by 40% */
     (metSomeoneInfected(CONTACT) -> P_C is 0.4; P_C is P_0),
     
-    /* calculates the probability of being infected */
+    /* probability of being infected */
     (P_I is P_S + P_HR + P_C),
 
     /* print the diagnose output based on P(I) value */
